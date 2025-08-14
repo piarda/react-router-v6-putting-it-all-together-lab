@@ -1,42 +1,41 @@
-import { useState } from "react"
-import { v4 as uuidv4 } from 'uuid'
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
-function MovieForm() {
-  const [title, setTitle] = useState("")
-  const [time, setTime] = useState("")
-  const [genres, setGenres] = useState("")
-
-  // Replace me
-  const director = null
-  
-  if (!director) { return <h2>Director not found.</h2>}
+const MovieForm = () => {
+  const { id } = useParams(); // Get the director's id from the URL
+  const navigate = useNavigate(); // Used for redirection
+  const [title, setTitle] = useState('');
+  const [time, setTime] = useState('');
+  const [genres, setGenres] = useState('');
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
+
     const newMovie = {
       id: uuidv4(),
       title,
       time: parseInt(time),
-      genres: genres.split(",").map((genre) => genre.trim()),
-    }
+      genres: genres.split(',').map((genre) => genre.trim()),
+    };
+
     fetch(`http://localhost:4000/directors/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({movies: [...director.movies, newMovie]})
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ movies: [newMovie] }),
     })
-    .then(r => {
-      if (!r.ok) { throw new Error("failed to add movie") }
-      return r.json()
-    })
-    .then(data => {
-      console.log(data)
-      // handle context/state changes
-      // navigate to newly created movie page
-    })
-    .catch(console.log)
-  }
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to add movie');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Redirect to the newly added movie page
+        navigate(`/directors/${id}/movies/${newMovie.id}`);
+      })
+      .catch((error) => console.error(error));
+  };
 
   return (
     <div>
@@ -66,8 +65,7 @@ function MovieForm() {
         <button type="submit">Add Movie</button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default MovieForm
-
+export default MovieForm;

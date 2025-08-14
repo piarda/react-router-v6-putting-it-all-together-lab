@@ -1,30 +1,30 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-function DirectorForm() {
+function DirectorForm({ setDirectors }) {
   const [name, setName] = useState("")
   const [bio, setBio] = useState("")
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const newDirector = { name, bio, movies: [] }
+    const newDirector = { name, bio, movies: [] };
+
     fetch("http://localhost:4000/directors", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newDirector)
     })
-    .then(r => {
-        if (!r.ok) { throw new Error("failed to add director")}
-        return r.json()
+    .then((response) => {
+        if (!response.ok) { throw new Error("Failed to add director") }
+        return response.json()
     })
-    .then(data => {
-        console.log(data)
-        // handle context/state changes
-        // navigate to newly created director page
-    })
-    .catch(console.log)
-  }
+    .then((data) => {
+        // Redirect to the newly created director's page
+        navigate(`/directors/${data.id}`);
+      })
+      .catch((error) => console.error(error));
+  };
 
   return (
     <div>
@@ -46,7 +46,7 @@ function DirectorForm() {
         <button type="submit">Add Director</button>
       </form>
     </div>
-  )
+  );
 }
 
 export default DirectorForm
